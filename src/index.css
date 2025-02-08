@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Light theme variables */
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --primary-color: #646cff;
+  /* ...other variables... */
+
+  /* Light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --accent-color: #646cff;
+  --border-color: #eeeeee;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --header-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  /* Dark theme variables */
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --primary-color: #818cf8;
+  /* ...other variables... */
+
+  /* Dark theme */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #dddddd;
+  --accent-color: #818cf8;
+  --border-color: #404040;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --header-bg: #242424;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

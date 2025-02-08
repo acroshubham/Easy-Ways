@@ -1,0 +1,42 @@
+.journal-detail {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 700px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.journal-detail-header {
+  position: relative;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.close-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.entry-date {
+  color: #666;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.journal-detail-body {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

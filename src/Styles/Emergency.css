@@ -1,0 +1,232 @@
+.emergency {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #000;
+}
+
+.emergency-content {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 600px;
+  border-radius: 24px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 20px auto;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.emergency-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3),
+    rgba(0, 0, 0, 0.5)
+  );
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.quote-container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.quote-container blockquote {
+  font-size: 2.5rem;
+  line-height: 1.4;
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+
+.quote-container footer {
+  font-size: 1.3rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.emergency-tips {
+  position: relative;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.555);
+  padding: 2.5rem;
+  border-radius: 20px;
+  color: white;
+  margin-top: 40px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emergency-tips h2 {
+  color: #fff;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  text-align: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.tip-section {
+  margin-bottom: 2rem;
+}
+
+.tip-section:last-child {
+  margin-bottom: 0;
+}
+
+.tip-section h3 {
+  color: #64b5f6;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.tip-section ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tip-section li {
+  margin: 0.8rem 0;
+  padding: 0.8rem 1.2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-left: 2rem;
+  line-height: 1.4;
+}
+
+.tip-section li:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.tip-section li::before {
+  content: '•';
+  color: #64b5f6;
+  position: absolute;
+  left: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.emergency-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  z-index: 1000;
+  animation: fadeIn 0.4s ease;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.emergency-page::-webkit-scrollbar {
+  display: none;
+}
+
+.close-emergency {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-emergency:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .emergency-content {
+    padding: 24px;
+    min-height: auto;
+  }
+
+  .quote-container {
+    padding: 24px 16px;
+  }
+
+  .quote-container blockquote {
+    font-size: 1.8rem;
+  }
+
+  .quote-container footer {
+    font-size: 1.1rem;
+  }
+
+  .emergency-tips {
+    padding: 1.5rem;
+    margin-top: 24px;
+  }
+
+  .emergency-tips h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tip-section h3 {
+    font-size: 1.2rem;
+  }
+
+  .tip-section li {
+    padding: 0.7rem 1rem 0.7rem 1.8rem;
+    font-size: 0.95rem;
+  }
+
+  .close-emergency {
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+}
