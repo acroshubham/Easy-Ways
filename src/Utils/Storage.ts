@@ -1,6 +1,33 @@
-import { JournalEntry, DailyProgress } from '../Types/types';
+import { JournalEntry, Category ,DailyProgress } from '../Types/types';
 
-const STORAGE_KEY = 'journal_entries';
+const STORAGE_KEYS = {
+  ENTRIES: 'journal_entries',
+  CATEGORIES: 'journal_categories'
+};
+
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: '1', name: 'Personal' },
+  { id: '2', name: 'Work' },
+  { id: '3', name: 'Goals' },
+  { id: '4', name: 'Dreams' },
+  { id: '5', name: 'Gratitude' }
+];
+
+export const getCategories = (): Category[] => {
+  const categories = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+  return categories ? JSON.parse(categories) : DEFAULT_CATEGORIES;
+};
+
+export const saveCategory = (name: string): Category[] => {
+  const categories = getCategories();
+  const newCategory = {
+    id: Date.now().toString(),
+    name: name.trim()
+  };
+  const updatedCategories = [...categories, newCategory];
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updatedCategories));
+  return updatedCategories;
+};
 
 export const saveJournalEntry = (entry: Omit<JournalEntry, 'id' | 'createdAt'>) => {
   const entries = getJournalEntries();
@@ -10,20 +37,20 @@ export const saveJournalEntry = (entry: Omit<JournalEntry, 'id' | 'createdAt'>) 
     createdAt: Date.now()
   };
   entries.push(newEntry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(entries));
   return newEntry;
 };
 
 export const getJournalEntries = (): JournalEntry[] => {
-  const entries = localStorage.getItem(STORAGE_KEY);
+  const entries = localStorage.getItem(STORAGE_KEYS.ENTRIES);
   return entries ? JSON.parse(entries) : [];
 };
 
 export const deleteJournalEntry = (id: string): JournalEntry[] => {
   const entries = getJournalEntries();
   const filteredEntries = entries.filter(entry => entry.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredEntries));
-  return filteredEntries;  // Return the updated entries
+  localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(filteredEntries));
+  return filteredEntries;
 };
 
 export const saveDailyProgress = (progress: DailyProgress) => {

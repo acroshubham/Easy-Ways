@@ -113,40 +113,65 @@
   padding-top: 0.5rem;
 }
 
+/* Base button styles */
 .nav-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.8rem;
   border: none;
-  background: none;
   cursor: pointer;
-  color: var(--text-secondary);
   border-radius: 6px;
   transition: all 0.2s ease;
   position: relative;
+  background: var(--bg-secondary, #f5f5f5);
+  color: var(--text-secondary, #666);
 }
 
-.nav-button::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: #646cff;
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
+/* Journal styles */
+.nav-button.journal {
+  background: transparent;
 }
 
-/* .nav-button:hover {
-  color: #646cff;
+.nav-button.journal.active {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+/* Calendar styles */
+.nav-button.calendar {
+  background: transparent;
+}
+
+.nav-button.calendar.active {
+  background: linear-gradient(135deg, #4cafad, #4553a0);
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Motivation styles */
+.nav-button.motivation {
+  background: transparent;
+}
+
+.nav-button.motivation.active {
+  background: linear-gradient(135deg, #ff696c, #ff1447);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
+}
+
+/* Hover effects for non-active buttons */
+.nav-button:not(.active):hover {
+  background: var(--bg-hover, #eee);
   transform: translateY(-1px);
 }
 
-.nav-button:hover::after {
-  width: 70%;
-} */
+/* Active state hover enhancement */
+.nav-button.active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
 
 .nav-button.active {
   background: var(--accent-color);

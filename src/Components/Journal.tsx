@@ -1,90 +1,193 @@
 import React, { useState, useEffect } from 'react';
-import { JournalEntry as JournalEntryType } from '../Types/types';
-import { saveJournalEntry, getJournalEntries, deleteJournalEntry } from '../Utils/Storage';
+import {
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  IconButton,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
+import { JournalEntry as JournalEntryType, Category } from '../Types/types';
+import { saveJournalEntry, getJournalEntries, getCategories, saveCategory, deleteJournalEntry } from '../Utils/Storage';
 import { JournalList } from './JournalList';
 import { JournalDetail } from './JournalDetail';
-import '../Styles/JournalEntry.css';
 
 export const JournalEntry: React.FC = () => {
   const [date, setDate] = useState('');
   const [header, setHeader] = useState('');
   const [body, setBody] = useState('');
+  const [category, setCategory] = useState('');
   const [entries, setEntries] = useState<JournalEntryType[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntryType | null>(null);
-  const [saveMessage, setSaveMessage] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     const savedEntries = getJournalEntries();
+    const savedCategories = getCategories();
     setEntries(savedEntries.sort((a, b) => b.createdAt - a.createdAt));
+    setCategories(savedCategories);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newEntry = saveJournalEntry({ date, header, body });
+    if (!category) {
+      setSnackbar({
+        open: true,
+        message: 'Please select a category',
+        severity: 'error'
+      });
+      return;
+    }
+
+    const newEntry = saveJournalEntry({ date, header, body, category });
     setEntries([newEntry, ...entries]);
     setDate('');
     setHeader('');
     setBody('');
+    setCategory('');
     
-    // Show save confirmation
-    setSaveMessage('Entry saved successfully!');
-    setTimeout(() => setSaveMessage(''), 3000);
+    setSnackbar({
+      open: true,
+      message: 'Entry saved successfully!',
+      severity: 'success'
+    });
   };
 
-  const handleDeleteEntry = (id: string) => {
-    const updatedEntries = deleteJournalEntry(id);
-    setEntries(updatedEntries.sort((a, b) => b.createdAt - a.createdAt));
-    setSaveMessage('Entry deleted successfully!');
-    setTimeout(() => setSaveMessage(''), 3000);
-    
-    // Close detail view if the deleted entry was being viewed
-    if (selectedEntry?.id === id) {
-      setSelectedEntry(null);
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      const updatedCategories = saveCategory(newCategory);
+      setCategories(updatedCategories);
+      setNewCategory('');
+      setOpenDialog(false);
     }
   };
 
   return (
-    <div className="journal-container">
-      <form className="journal-entry" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="date">Date</label>
-          <input
-            type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="header">Header</label>
-          <input
-            type="text"
-            id="header"
-            value={header}
-            onChange={(e) => setHeader(e.target.value)}
-            placeholder="Enter a title for your entry"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="body">Body</label>
-          <textarea
-            id="body"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your thoughts..."
-            required
-          />
-        </div>
-        <button type="submit" className="submit-button">Save Entry</button>
-        {saveMessage && <div className="save-message">{saveMessage}</div>}
-      </form>
-      
-      <JournalList 
-        entries={entries} 
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom sx={{ 
+          color: 'gold',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          mb: 4
+        }}>
+          My Diary
+        </Typography>
+
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            p: 3,
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 2
+          }}
+        >
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+              <TextField
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                fullWidth
+                sx={{ flex: 1 }}
+              />
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                  label="Category"
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <IconButton 
+                onClick={() => setOpenDialog(true)}
+                sx={{ 
+                  color: 'gold',
+                  '&:hover': { 
+                    color: 'gold',
+                    backgroundColor: 'rgba(255, 231, 98, 0.2)'
+                  }
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
+
+            <TextField
+              label="Header"
+              value={header}
+              onChange={(e) => setHeader(e.target.value)}
+              required
+              fullWidth
+              sx={{ mb: 3 }}
+            />
+
+            <TextField
+              label="Write your thoughts..."
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              required
+              fullWidth
+              multiline
+              rows={4}
+              sx={{ mb: 3 }}
+            />
+
+            <Button 
+              type="submit" 
+              variant="contained"
+              sx={{ 
+                bgcolor: 'gold',
+                '&:hover': { bgcolor:" rgba(255, 231, 98, 0.9)" },
+                width: '100%'
+              }}
+            >
+              Save Entry
+            </Button>
+          </form>
+        </Paper>
+      </Box>
+
+      <JournalList
+        entries={entries}
+        categories={categories}
         onEntryClick={setSelectedEntry}
-        onDeleteEntry={handleDeleteEntry}
+        onDeleteEntry={(id) => {
+          const updatedEntries = deleteJournalEntry(id);
+          setEntries(updatedEntries.sort((a, b) => b.createdAt - a.createdAt));
+          if (selectedEntry?.id === id) {
+            setSelectedEntry(null);
+          }
+          setSnackbar({
+            open: true,
+            message: 'Entry deleted successfully!',
+            severity: 'success'
+          });
+        }}
       />
 
       {selectedEntry && (
@@ -93,6 +196,40 @@ export const JournalEntry: React.FC = () => {
           onClose={() => setSelectedEntry(null)}
         />
       )}
-    </div>
+
+      {/* Add Category Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Add New Category</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Category Name"
+            fullWidth
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} sx={{color: 'red'}}>Cancel</Button>
+          <Button onClick={handleAddCategory} sx={{ color: 'gold' }}>Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity as any}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
 };

@@ -8,7 +8,7 @@ interface NavBarProps {
   streak: number;
 }
 
-export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak }) => {
+export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak}) => {
   const { toggleTheme, isDark } = useTheme();
 
   return (
@@ -42,10 +42,11 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak })
         </div>
 
         <nav className="sub-nav">
-          <button
-            className={`nav-button ${currentView === 'journal' ? 'active' : ''}`}
-            onClick={() => setCurrentView('journal')}
-          >
+        <button
+  className={`nav-button ${currentView === 'journal' ? 'active journal' : 'journal'}`}
+  onClick={() => setCurrentView('journal')}
+>
+
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -53,9 +54,10 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak })
             <span>Journal</span>
           </button>
           <button
-            className={`nav-button ${currentView === 'calendar' ? 'active' : ''}`}
-            onClick={() => setCurrentView('calendar')}
-          >
+  className={`nav-button ${currentView === 'calendar' ? 'active calendar' : 'calendar'}`}
+  onClick={() => setCurrentView('calendar')}
+>
+
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
@@ -65,9 +67,10 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak })
             <span>Calendar</span>
           </button>
           <button
-            className={`nav-button ${currentView === 'motivation' ? 'active' : ''}`}
-            onClick={() => setCurrentView('motivation')}
-          >
+  className={`nav-button ${currentView === 'motivation' ? 'active motivation' : 'motivation'}`}
+  onClick={() => setCurrentView('motivation')}
+>
+
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
