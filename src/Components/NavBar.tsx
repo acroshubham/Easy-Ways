@@ -43,9 +43,9 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak}) 
 
         <nav className="sub-nav">
         <button
-  className={`nav-button ${currentView === 'journal' ? 'active journal' : 'journal'}`}
-  onClick={() => setCurrentView('journal')}
->
+          className={`nav-button ${currentView === 'journal' ? 'active journal' : 'journal'}`}
+          onClick={() => setCurrentView('journal')}
+        >
 
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -54,9 +54,9 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak}) 
             <span>Journal</span>
           </button>
           <button
-  className={`nav-button ${currentView === 'calendar' ? 'active calendar' : 'calendar'}`}
-  onClick={() => setCurrentView('calendar')}
->
+            className={`nav-button ${currentView === 'calendar' ? 'active calendar' : 'calendar'}`}
+            onClick={() => setCurrentView('calendar')}
+          >
 
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -67,9 +67,9 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView, streak}) 
             <span>Calendar</span>
           </button>
           <button
-  className={`nav-button ${currentView === 'motivation' ? 'active motivation' : 'motivation'}`}
-  onClick={() => setCurrentView('motivation')}
->
+            className={`nav-button ${currentView === 'motivation' ? 'active motivation' : 'motivation'}`}
+            onClick={() => setCurrentView('motivation')}
+          >
 
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />

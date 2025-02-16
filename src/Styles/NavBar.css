@@ -131,6 +131,7 @@
 /* Journal styles */
 .nav-button.journal {
   background: transparent;
+  border: 1.2px solid #ffd700;
 }
 
 .nav-button.journal.active {
@@ -142,6 +143,7 @@
 /* Calendar styles */
 .nav-button.calendar {
   background: transparent;
+  border: 1.2px solid #4cafad;
 }
 
 .nav-button.calendar.active {
@@ -153,6 +155,7 @@
 /* Motivation styles */
 .nav-button.motivation {
   background: transparent;
+  border: 1.2px solid #ff696c;
 }
 
 .nav-button.motivation.active {
@@ -217,4 +220,121 @@
 
 .theme-toggle:hover {
   opacity: 0.9;
+}
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .top-nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.5rem 1rem;
+  }
+
+  .top-nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nav-items {
+    display: none; /* Hide nav items on mobile */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: var(--header-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+
+  .nav-items.active {
+    display: flex;
+  }
+
+  .sub-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    width: calc(100% - 2rem); /* Account for padding */
+    margin: 0 auto;
+  }
+
+  .nav-button {
+    width: calc(50% - 0.25rem); /* Adjust for smaller gap */
+    margin: 0;
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .hamburger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .hamburger-menu span {
+    background: var(--text-primary);
+    height: 3px;
+    width: 100%;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .hamburger-menu.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .hamburger-menu.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-menu.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* Theme toggle specific adjustments */
+  .theme-toggle {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0.5rem;
+  }
+
+  .sub-nav {
+    padding: 0.5rem;
+    width: calc(100% - 1rem); /* Adjust for smaller padding */
+  }
+
+  .nav-button {
+    width: 65%; /* Full width on smaller screens */
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
+
+  .streak-counter {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .theme-toggle {
+    padding: 0.4rem 0.8rem;
+  }
 }
