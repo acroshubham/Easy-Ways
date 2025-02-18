@@ -37,7 +37,9 @@ export const JournalList: React.FC<JournalListProps> = ({
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean, entryId?: string }>({ open: false });
 
   const getEntriesByCategory = (categoryName: string) => {
-    return entries.filter(entry => entry.category === categoryName);
+    return entries
+      .filter(entry => entry.category === categoryName)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   };
 
   const handleDeleteConfirm = () => {

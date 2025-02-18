@@ -221,15 +221,24 @@ export const JournalEntry: React.FC = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} 
       >
         <Alert 
           onClose={() => setSnackbar({ ...snackbar, open: false })} 
           severity={snackbar.severity as any}
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%', 
+            maxHeight: '150px', 
+            overflowY: 'auto', 
+            display: 'flex', 
+            alignItems: 'center',
+            height: '70%'
+          }}
         >
           {snackbar.message}
         </Alert>
       </Snackbar>
+
     </Container>
   );
 };
