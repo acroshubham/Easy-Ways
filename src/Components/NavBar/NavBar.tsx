@@ -1,12 +1,13 @@
-import { FC, useState } from 'react';
+import { FC, useState, Dispatch, SetStateAction } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
 import './Styles/NavBar.css';
 import { Profile } from '../Profile/Profile';
 
-interface NavBarProps {
+export interface NavBarProps {
   currentView: 'calendar' | 'journal' | 'motivation' | 'emergency';
-  setCurrentView: (view: 'calendar' | 'journal' | 'motivation') => void;
+  setCurrentView: Dispatch<SetStateAction<'calendar' | 'journal' | 'motivation' | 'emergency'>>;
+  streak: number;
 }
 
 export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView }) => {
