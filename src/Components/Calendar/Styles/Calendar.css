@@ -159,3 +159,34 @@
     z-index: 2;
   }
 }
+
+[data-theme='dark'] .calendar {
+  background: var(--dark-bg);
+  box-shadow: var(--dark-shadow);
+}
+
+[data-theme='dark'] .calendar-day {
+  background-color: var(--dark-surface);
+  color: var(--dark-text);
+}
+
+[data-theme='dark'] .calendar-day:not(.empty):hover {
+  background-color: var(--dark-surface-hover);
+}
+
+[data-theme='dark'] .calendar-day.success::after {
+  background-color: rgba(0, 200, 83, 0.3);
+}
+
+[data-theme='dark'] .calendar-day.failure::after {
+  background-color: rgba(255, 72, 66, 0.3);
+}
+
+/* Add CSS variables for dark theme */
+:root {
+  --dark-bg: #1a1c1e;
+  --dark-surface: #2d3748;
+  --dark-surface-hover: #3a4758;
+  --dark-text: #e2e8f0;
+  --dark-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}

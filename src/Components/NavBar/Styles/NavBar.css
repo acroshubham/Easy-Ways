@@ -1,0 +1,330 @@
+/* Header styles */
+.header {
+  width: 100%;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+}
+
+/* Top navigation layout */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 48px;
+  position: relative;
+}
+
+/* Left side of navigation */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Right side of navigation */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Menu Icon (mobile) */
+.menu-icon {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.menu-icon span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--text-primary);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Success Story Logo */
+.success-story-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: max-content;
+  transition: transform 0.2s ease;
+}
+.trophy-icon {
+  width: 24px;
+  height: 24px;
+  color: #ffd700;
+}
+
+.mountain-icon {
+  width: 24px;
+  height: 24px;
+  color: #4cafad;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Navigation Items */
+.nav-items {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1.2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.nav-button.journal {
+  border-color: #ffd700;
+}
+
+.nav-button.journal.active {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  border: none;
+}
+
+.nav-button.calendar {
+  border-color: #4cafad;
+}
+
+.nav-button.calendar.active {
+  background: linear-gradient(135deg, #4cafad, #4553a0);
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  border: none;
+}
+
+.nav-button.motivation {
+  border-color: #ff696c;
+}
+
+.nav-button.motivation.active {
+  background: linear-gradient(135deg, #ff696c, #ff1447);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
+  border: none;
+}
+
+/* Update the nav-button hover styles */
+.nav-button:not(.active):hover {
+  background: var(--nav-hover-bg);
+  transform: translateY(-1px);
+}
+
+.nav-button.active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Theme Toggle Switch */
+.theme-toggle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.theme-switch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #87CEEB, #ADD8E6);
+  border-radius: 30px;
+  transition: 0.4s;
+  overflow: hidden;
+}
+
+.switch-slider:before {
+  content: "";
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  bottom: 3px;
+  background: #FCE570;
+  border-radius: 50%;
+  transition: 0.4s;
+  box-shadow: 
+    8px -8px 0 -3px #fff,
+    15px -3px 0 -4px #fff;
+}
+
+input:checked + .switch-slider {
+  background: linear-gradient(to right, #1a1a2e, #000033);
+}
+
+input:checked + .switch-slider:before {
+  transform: translateX(30px);
+  background: #C0C0C0;
+  box-shadow: none;
+}
+
+input:checked + .switch-slider:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 10% 20%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 20% 50%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 30% 70%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 40% 30%, #fff 50%, transparent 50%),
+    radial-gradient(2px 2px at 70% 60%, #fff 50%, transparent 50%);
+  background-repeat: no-repeat;
+  animation: twinkle 1.5s ease-in-out infinite alternate;
+}
+
+.switch-slider:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.8) 0%, transparent 50%),
+    radial-gradient(circle at 50% 70%, rgba(255,255,255,0.7) 0%, transparent 40%),
+    radial-gradient(circle at 0% 10%, rgba(255,255,255,0.6) 0%, transparent 45%);
+  background-repeat: no-repeat;
+  animation: float 3s ease-in-out infinite;
+  margin-top: -11px;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes float {
+  0% { transform: translateX(-5%); }
+  50% { transform: translateX(5%); }
+  100% { transform: translateX(-5%); }
+}
+
+:root {
+  --nav-hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] {
+  --nav-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .menu-icon {
+    display: flex;
+  }
+
+  .nav-items {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    background: var(--header-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nav-items.active {
+    display: flex;
+  }
+  .nav-items active {
+    display: flex;
+    margin-right:9.7rem;
+  }
+
+  .nav-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .theme-switch {
+    width: 50px;
+    height: 26px;
+  }
+
+  .switch-slider:before {
+    height: 20px;
+    width: 20px;
+  }
+
+  input:checked + .switch-slider:before {
+    transform: translateX(24px);
+  }
+  .nav-items.active {
+    margin-left: 9.7rem;
+  }  
+}

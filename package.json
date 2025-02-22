@@ -14,10 +14,12 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.4",
     "@mui/material": "^6.4.4",
+    "framer-motion": "^12.4.7",
     "i": "^0.3.7",
     "npm": "^11.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^2.15.1",
     "sweetalert2": "^11.16.1"
   },
   "devDependencies": {

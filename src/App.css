@@ -80,7 +80,6 @@
   }
 
   .banner::before {
-    width: 150%;
-    height: 150%;
+    display: none;
   }
 }

@@ -1,6 +1,5 @@
 import React from 'react';
-import '../Styles/EmergencyButton.css';
-
+import './Styles/EmergencyButton.css';
 interface EmergencyButtonProps {
   onClick: () => void;
 }

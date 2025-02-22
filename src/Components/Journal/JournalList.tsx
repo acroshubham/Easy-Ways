@@ -18,7 +18,9 @@ import {
   ExpandMore as ExpandMoreIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
-import { JournalEntry, Category } from '../Types/types';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { JournalEntry, Category } from '../../Types/types';
 
 interface JournalListProps {
   entries: JournalEntry[];
@@ -33,6 +35,8 @@ export const JournalList: React.FC<JournalListProps> = ({
   onEntryClick,
   onDeleteEntry
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [expandedCategory, setExpandedCategory] = useState<string | false>(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean, entryId?: string }>({ open: false });
 
@@ -51,7 +55,7 @@ export const JournalList: React.FC<JournalListProps> = ({
 
   return (
     <>
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: isMobile ? 2 : 4 }}>
         {categories.map((category) => {
           const categoryEntries = getEntriesByCategory(category.name);
           if (categoryEntries.length === 0) return null;
@@ -64,51 +68,83 @@ export const JournalList: React.FC<JournalListProps> = ({
               sx={{ 
                 mb: 2,
                 '&:before': { display: 'none' },
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)'
+                bgcolor: theme.palette.background.paper,
+                backdropFilter: 'blur(10px)',
+                borderRadius: '8px !important',
+                overflow: 'hidden'
               }}
             >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6" sx={{ color: 'gold' }}>
+              <AccordionSummary 
+                expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
+                sx={{ 
+                  px: isMobile ? 2 : 3,
+                  py: isMobile ? 1 : 2
+                }}
+              >
+                <Typography variant="h6" sx={{ color: 'primary.main' }}>
                   {category.name} ({categoryEntries.length})
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 1 : 2 }}>
                   {categoryEntries.map((entry) => (
                     <Paper 
                       key={entry.id} 
                       elevation={2}
                       onClick={() => onEntryClick(entry)}
                       sx={{ 
-                        p: 2,
+                        p: isMobile ? 1.5 : 2,
                         position: 'relative',
                         cursor: 'pointer',
                         '&:hover': { boxShadow: 3 }
                       }}
                     >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="h6">{entry.header}</Typography>
-                        <Box>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between', 
+                        alignItems: isMobile ? 'flex-start' : 'center', 
+                        mb: 1 
+                      }}>
+                        <Typography 
+                          variant={isMobile ? "subtitle1" : "h6"}
+                          sx={{ mb: isMobile ? 1 : 0 }}
+                        >
+                          {entry.header}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Chip 
                             label={entry.date} 
                             size="small" 
-                            sx={{ mr: 1, bgcolor: 'gold', color: 'white' }}
+                            sx={{ 
+                              mr: 1,
+                              bgcolor: 'gold',
+                              color: 'white',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem'
+                            }}
                           />
                           <IconButton 
-                            size="small" 
+                            size={isMobile ? "small" : "medium"}
                             onClick={(e) => {
                               e.stopPropagation();
                               setDeleteDialog({ open: true, entryId: entry.id });
                             }}
                             sx={{ color: 'red' }}
                           >
-                            <DeleteIcon />
+                            <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
                           </IconButton>
                         </Box>
                       </Box>
-                      <Typography variant="body1">
-                        {entry.body.substring(0, 100)}...
+                      <Typography 
+                        variant={isMobile ? "body2" : "body1"}
+                        sx={{ 
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {entry.body.substring(0, isMobile ? 50 : 100)}...
                       </Typography>
                     </Paper>
                   ))}

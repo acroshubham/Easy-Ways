@@ -1,5 +1,5 @@
 import React from 'react';
-import '../Styles/Emergency.css'
+import './Styles/Emergency.css'
 const quotes = [
   {
     text: "The only way to do great work is to love what you do.",

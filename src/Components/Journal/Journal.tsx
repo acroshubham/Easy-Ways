@@ -19,12 +19,16 @@ import {
   DialogActions,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { JournalEntry as JournalEntryType, Category } from '../Types/types';
-import { saveJournalEntry, getJournalEntries, getCategories, saveCategory, deleteJournalEntry } from '../Utils/Storage';
+import { JournalEntry as JournalEntryType, Category } from '../../Types/types';
+import { saveJournalEntry, getJournalEntries, getCategories, saveCategory, deleteJournalEntry } from '../../Utils/Storage';
 import { JournalList } from './JournalList';
 import { JournalDetail } from './JournalDetail';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const JournalEntry: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [date, setDate] = useState('');
   const [header, setHeader] = useState('');
   const [body, setBody] = useState('');
@@ -39,7 +43,7 @@ export const JournalEntry: React.FC = () => {
   useEffect(() => {
     const savedEntries = getJournalEntries();
     const savedCategories = getCategories();
-    setEntries(savedEntries.sort((a, b) => b.createdAt - a.createdAt));
+    setEntries(savedEntries.sort((a: any, b: any) => b.createdAt - a.createdAt));
     setCategories(savedCategories);
   }, []);
 
@@ -78,13 +82,13 @@ export const JournalEntry: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
+    <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ 
-          color: 'gold',
+          color: 'primary.main',
           fontWeight: 'bold',
           textAlign: 'center',
-          mb: 4
+          mb: isMobile ? 2 : 4
         }}>
           My Diary
         </Typography>
@@ -92,14 +96,19 @@ export const JournalEntry: React.FC = () => {
         <Paper 
           elevation={3} 
           sx={{ 
-            p: 3,
-            background: 'rgba(255, 255, 255, 0.9)',
+            p: isMobile ? 2 : 3,
+            background: theme.palette.background.paper,
             backdropFilter: 'blur(10px)',
             borderRadius: 2
           }}
         >
           <form onSubmit={handleSubmit}>
-            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              gap: 2, 
+              mb: 3 
+            }}>
               <TextField
                 type="date"
                 value={date}
@@ -108,33 +117,39 @@ export const JournalEntry: React.FC = () => {
                 fullWidth
                 sx={{ flex: 1 }}
               />
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                  label="Category"
-                >
-                  {categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <IconButton 
-                onClick={() => setOpenDialog(true)}
-                sx={{ 
-                  color: 'gold',
-                  '&:hover': { 
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 1,
+                alignItems: 'center'
+              }}>
+                <FormControl sx={{ flex: 1 }}>
+                  <InputLabel>Category</InputLabel>
+                  <Select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                    label="Category"
+                  >
+                    {categories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <IconButton 
+                  onClick={() => setOpenDialog(true)}
+                  sx={{ 
                     color: 'gold',
-                    backgroundColor: 'rgba(255, 231, 98, 0.2)'
-                  }
-                }}
-              >
-                <AddIcon />
-              </IconButton>
+                    '&:hover': { 
+                      color: 'gold',
+                      backgroundColor: 'rgba(255, 231, 98, 0.2)'
+                    }
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Box>
             </Box>
 
             <TextField
@@ -161,9 +176,13 @@ export const JournalEntry: React.FC = () => {
               type="submit" 
               variant="contained"
               sx={{ 
-                bgcolor: 'gold',
-                '&:hover': { bgcolor:" rgba(255, 231, 98, 0.9)" },
-                width: '100%'
+                bgcolor: 'primary.main',
+                color: 'text.primary',
+                '&:hover': { 
+                  bgcolor: 'primary.dark'
+                },
+                width: '100%',
+                py: isMobile ? 1.5 : 2
               }}
             >
               Save Entry

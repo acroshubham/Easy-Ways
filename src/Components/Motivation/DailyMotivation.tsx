@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../Styles/DailyMotivation.css';
+import './Styles/DailyMotivation.css';
 
 const images = [
   "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&w=1920&q=80",

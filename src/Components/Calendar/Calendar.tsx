@@ -1,6 +1,6 @@
 import React from 'react';
-import { DailyProgress } from '../Types/types';
-import { saveDailyProgress } from '../Utils/Storage';
+import { DailyProgress } from '../../Types/types';
+import { saveDailyProgress } from '../../Utils/Storage';
 
 // MUI components & icons
 import { 
@@ -40,12 +40,27 @@ const CalendarCell = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   transition: 'all 0.2s ease-in-out',
   cursor: 'pointer',
+  backgroundColor: theme.palette.calendar.cellBg,
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    transform: 'scale(1.05)',
+    backgroundColor: theme.palette.calendar.cellHoverBg,
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    inset: 0,
+    borderRadius: 'inherit',
+    transition: 'all 0.2s ease-in-out',
+  },
+  '&.success::after': {
+    backgroundColor: theme.palette.calendar.successOverlay,
+  },
+  '&.failure::after': {
+    backgroundColor: theme.palette.calendar.failureOverlay,
   },
 }));
 
-const CellContent = styled(Box)({
+const CellContent = styled(Box)(({ }) => ({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -54,13 +69,22 @@ const CellContent = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  zIndex: 1,
+  '& .status-icon': {
+    position: 'absolute',
+    fontSize: '1.5rem',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
+}));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   borderRadius: theme.shape.borderRadius * 2,
   backgroundColor: theme.palette.background.paper,
   boxShadow: theme.shadows[8],
+  transition: 'background-color 0.3s ease',
 }));
 
 export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }) => {
@@ -215,17 +239,9 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
         <Fade in key={date}>
           <CalendarCell
             onClick={() => handleCalendarCellClick(date)}
+            className={isSuccess ? 'success' : isFailure ? 'failure' : ''}
             sx={{
-              bgcolor: isSuccess 
-                ? `${theme.palette.success.light}30`
-                : isFailure 
-                  ? `${theme.palette.error.light}30`
-                  : isToday 
-                    ? `${theme.palette.primary.light}20`
-                    : 'transparent',
-              border: isToday 
-                ? `2px solid ${theme.palette.primary.main}`
-                : '1px solid transparent',
+              border: isToday ? `2px solid ${theme.palette.primary.main}` : 'none',
             }}
           >
             <CellContent>
@@ -234,24 +250,14 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
               </Typography>
               {isSuccess && (
                 <CheckCircle 
-                  sx={{ 
-                    position: 'absolute',
-                    bottom: 4,
-                    right: 4,
-                    color: theme.palette.success.main,
-                    fontSize: '1rem'
-                  }} 
+                  className="status-icon"
+                  sx={{ color: theme.palette.success.main }} 
                 />
               )}
               {isFailure && (
                 <Cancel 
-                  sx={{ 
-                    position: 'absolute',
-                    bottom: 4,
-                    right: 4,
-                    color: theme.palette.error.main,
-                    fontSize: '1rem'
-                  }} 
+                  className="status-icon"
+                  sx={{ color: theme.palette.error.main }} 
                 />
               )}
             </CellContent>
