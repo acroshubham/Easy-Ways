@@ -1,7 +1,6 @@
 import React from 'react';
 import { DailyProgress } from '../../Types/types';
 import { saveDailyProgress } from '../../Utils/Storage';
-
 // MUI components & icons
 import { 
   Box,
