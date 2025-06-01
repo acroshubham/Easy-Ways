@@ -10,12 +10,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  // DialogActions,
   Button,
   Chip,
   Fade,
   styled,
-  useTheme
+  useTheme,
+  LinearProgress,
+  Backdrop
 } from '@mui/material';
 import {
   ChevronLeft,
@@ -39,10 +41,10 @@ const CalendarCell = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   transition: 'all 0.2s ease-in-out',
   cursor: 'pointer',
-  backgroundColor: theme.palette.calendar.cellBg,
+  backgroundColor: theme.palette.calendar?.cellBg || theme.palette.grey[100],
   '&:hover': {
     transform: 'scale(1.05)',
-    backgroundColor: theme.palette.calendar.cellHoverBg,
+    backgroundColor: theme.palette.calendar?.cellHoverBg || theme.palette.grey[200],
   },
   '&::after': {
     content: '""',
@@ -52,10 +54,10 @@ const CalendarCell = styled(Box)(({ theme }) => ({
     transition: 'all 0.2s ease-in-out',
   },
   '&.success::after': {
-    backgroundColor: theme.palette.calendar.successOverlay,
+    backgroundColor: theme.palette.calendar?.successOverlay || theme.palette.success.light + '40',
   },
   '&.failure::after': {
-    backgroundColor: theme.palette.calendar.failureOverlay,
+    backgroundColor: theme.palette.calendar?.failureOverlay || theme.palette.error.light + '40',
   },
 }));
 
@@ -86,6 +88,21 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   transition: 'background-color 0.3s ease',
 }));
 
+const ToastModal = styled(Paper)(({ theme }) => ({
+  position: 'fixed',
+  top: '20px',
+  right: '20px',
+  minWidth: '320px',
+  maxWidth: '400px',
+  padding: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius * 2,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[12],
+  zIndex: 1400,
+  transition: 'all 0.3s ease-in-out',
+  border: `1px solid ${theme.palette.divider}`,
+}));
+
 export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }) => {
   const theme = useTheme();
   const today = new Date();
@@ -93,9 +110,9 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
   const [currentYear, setCurrentYear] = React.useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const [openOptionDialog, setOpenOptionDialog] = React.useState(false);
-  const [openResultDialog, setOpenResultDialog] = React.useState(false);
-  const [resultDialogTitle, setResultDialogTitle] = React.useState('');
-  const [resultDialogContent, setResultDialogContent] = React.useState('');
+  const [showToast, setShowToast] = React.useState(false);
+  const [toastContent, setToastContent] = React.useState({ title: '', message: '', type: 'success' as 'success' | 'failure' });
+  const [progress_bar, setProgressBar] = React.useState(100);
 
   const motivationalQuotes = [
     "Keep pushing forward! 🚀",
@@ -105,32 +122,35 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
     "The future is bright, continue the journey! ✨"
   ];
 
+  const failureQuotes = [
+    "Every setback is a setup for a comeback! 💪",
+    "Fall seven times, stand up eight! 🌟",
+    "Today's failure is tomorrow's strength! 💯",
+    "Keep going, you're stronger than you think! 🔥",
+    "This is just a detour, not a dead end! 🛤️"
+  ];
+
+  // Fixed streak calculation
   const calculateStreak = () => {
     let streak = 0;
-    const sortedProgress = [...progress].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    const sortedProgress = [...progress]
+      .filter(p => p.status === 'success')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    if (sortedProgress.length === 0) return 0;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const todayStr = today.toISOString().split('T')[0];
-    const hasTodayEntry = sortedProgress.find(
-      p => p.date === todayStr && p.status === 'success'
-    );
+    const hasTodayEntry = sortedProgress.find(p => p.date === todayStr);
     
+    let currentDate = new Date(today);
+    
+    // If no entry for today, start from yesterday
     if (!hasTodayEntry) {
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-      const hasYesterdayEntry = sortedProgress.find(
-        p => p.date === yesterdayStr && p.status === 'success'
-      );
-      if (!hasYesterdayEntry) {
-        return 0; 
-      }
+      currentDate.setDate(currentDate.getDate() - 1);
     }
-        let currentDate = new Date(today);
     
     while (true) {
       const dateStr = currentDate.toISOString().split('T')[0];
@@ -140,12 +160,6 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
         streak++;
         currentDate.setDate(currentDate.getDate() - 1);
       } else {
-        // If we don't have an entry for today but have one for yesterday,
-        // we'll count back from yesterday
-        if (!hasTodayEntry && streak === 0) {
-          currentDate.setDate(currentDate.getDate() - 1);
-          continue;
-        }
         break;
       }
     }
@@ -155,6 +169,29 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
 
   const currentStreak = calculateStreak();
 
+  // Toast auto-dismiss effect
+  React.useEffect(() => {
+    if (showToast) {
+      setProgressBar(100);
+      const duration = 4000; // 4 seconds
+      const interval = 50; // Update every 50ms
+      const decrement = 100 / (duration / interval);
+      
+      const timer = setInterval(() => {
+        setProgressBar(prev => {
+          if (prev <= 0) {
+            setShowToast(false);
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - decrement;
+        });
+      }, interval);
+
+      return () => clearInterval(timer);
+    }
+  }, [showToast]);
+
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month + 1, 0).getDate();
   };
@@ -162,6 +199,7 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
   const getFirstDayOfMonth = (month: number, year: number) => {
     return new Date(year, month, 1).getDay();
   };
+
   const handlePreviousMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -183,6 +221,7 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
   const handleCalendarCellClick = (date: string) => {
     const existingProgress = progress.find(p => p.date === date);
     if (existingProgress && (existingProgress.status === 'success' || existingProgress.status === 'failure')) {
+      // Reset progress for existing entries
       const resetProgress: DailyProgress = { date, completed: false, status: '' };
       saveDailyProgress(resetProgress);
       onProgressUpdate();
@@ -194,24 +233,34 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
 
   const handleOption = (status: 'success' | 'failure') => {
     if (!selectedDate) return;
+    
     const newProgress: DailyProgress = {
       date: selectedDate,
       status: status,
       completed: status === 'success'
     };
+    
     saveDailyProgress(newProgress);
     onProgressUpdate();
     setOpenOptionDialog(false);
 
+    // Show toast notification
     if (status === 'success') {
-      setResultDialogTitle("Congratulations! 🎉");
       const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-      setResultDialogContent(randomQuote);
+      setToastContent({
+        title: "Congratulations! 🎉",
+        message: randomQuote,
+        type: 'success'
+      });
     } else {
-      setResultDialogTitle("Keep Going! 💪");
-      setResultDialogContent("Every setback is a setup for a comeback! Keep pushing forward.");
+      const randomQuote = failureQuotes[Math.floor(Math.random() * failureQuotes.length)];
+      setToastContent({
+        title: "Keep Going! 💪",
+        message: randomQuote,
+        type: 'failure'
+      });
     }
-    setOpenResultDialog(true);
+    setShowToast(true);
   };
 
   const renderCalendar = () => {
@@ -268,149 +317,176 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
   };
 
   return (
-    <StyledPaper elevation={3}>
-      {/* Header */}
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-            Progress Calendar
-          </Typography>
-          <Chip
-            icon={<LocalFireDepartment sx={{ color: theme.palette.warning.main }} />}
-            label={`${currentStreak} Day${currentStreak === 1 ? '' : 's'} Streak`}
-            color="primary"
-            variant="outlined"
-            sx={{ 
-              borderRadius: '16px',
-              '& .MuiChip-label': {
-                fontWeight: 'bold'
-              }
-            }}
-          />
-        </Box>
-        
-        {/* Month Navigation */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <IconButton onClick={handlePreviousMonth}>
-            <ChevronLeft />
-          </IconButton>
-          <Typography variant="h6">
-            {new Date(currentYear, currentMonth).toLocaleString('default', {
-              month: 'long',
-              year: 'numeric'
-            })}
-          </Typography>
-          <IconButton onClick={handleNextMonth}>
-            <ChevronRight />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* Calendar Grid */}
-      <Box sx={{ width: '100%' }}>
-        {/* Weekday Headers */}
-        <Box sx={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(7, 1fr)',
-          gap: 1,
-          mb: 1
-        }}>
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <Typography 
-              key={day} 
-              variant="subtitle2" 
+    <>
+      <StyledPaper elevation={3}>
+        {/* Header */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              Progress Calendar
+            </Typography>
+            <Chip
+              icon={<LocalFireDepartment sx={{ color: theme.palette.warning.main }} />}
+              label={`${currentStreak} Day${currentStreak === 1 ? '' : 's'} Streak`}
+              color="primary"
+              variant="outlined"
               sx={{ 
-                textAlign: 'center',
-                color: theme.palette.text.secondary,
-                fontWeight: 'medium'
+                borderRadius: '16px',
+                '& .MuiChip-label': {
+                  fontWeight: 'bold'
+                }
+              }}
+            />
+          </Box>
+          
+          {/* Month Navigation */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <IconButton onClick={handlePreviousMonth}>
+              <ChevronLeft />
+            </IconButton>
+            <Typography variant="h6">
+              {new Date(currentYear, currentMonth).toLocaleString('default', {
+                month: 'long',
+                year: 'numeric'
+              })}
+            </Typography>
+            <IconButton onClick={handleNextMonth}>
+              <ChevronRight />
+            </IconButton>
+          </Box>
+        </Box>
+
+        {/* Calendar Grid */}
+        <Box sx={{ width: '100%' }}>
+          {/* Weekday Headers */}
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            gap: 1,
+            mb: 1
+          }}>
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <Typography 
+                key={day} 
+                variant="subtitle2" 
+                sx={{ 
+                  textAlign: 'center',
+                  color: theme.palette.text.secondary,
+                  fontWeight: 'medium'
+                }}
+              >
+                {day}
+              </Typography>
+            ))}
+          </Box>
+
+          {/* Calendar Days */}
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            gap: 1
+          }}>
+            {renderCalendar()}
+          </Box>
+        </Box>
+
+        {/* Option Dialog */}
+        <Dialog 
+          open={openOptionDialog} 
+          onClose={() => setOpenOptionDialog(false)}
+          PaperProps={{
+            sx: {
+              borderRadius:'10px',
+              minWidth: '320px'
+            }
+          }}
+        >
+          <DialogTitle sx={{ pr: 6 }}>
+            Update Progress for {selectedDate}
+            <IconButton
+              aria-label="close"
+              onClick={() => setOpenOptionDialog(false)}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
               }}
             >
-              {day}
-            </Typography>
-          ))}
-        </Box>
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircle />}
+                onClick={() => handleOption('success')}
+                sx={{ py: 1.5 }}
+              >
+                Freaking on the way
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<Cancel />}
+                onClick={() => handleOption('failure')}
+                sx={{ py: 1.5 }}
+              >
+                Will Never Choose this Path
+              </Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      </StyledPaper>
 
-        {/* Calendar Days */}
-        <Box sx={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(7, 1fr)',
-          gap: 1
-        }}>
-          {renderCalendar()}
-        </Box>
-      </Box>
-
-      {/* Option Dialog */}
-      <Dialog 
-        open={openOptionDialog} 
-        onClose={() => setOpenOptionDialog(false)}
-        PaperProps={{
-          sx: {
-            borderRadius: theme.shape.borderRadius * 2,
-            minWidth: '320px'
-          }
-        }}
-      >
-        <DialogTitle sx={{ pr: 6 }}>
-          Update Progress for {selectedDate}
-          <IconButton
-            aria-label="close"
-            onClick={() => setOpenOptionDialog(false)}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-            }}
-          >
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<CheckCircle />}
-              onClick={() => handleOption('success')}
-              sx={{ py: 1.5 }}
+      {/* Toast Notification */}
+      {showToast && (
+        <>
+          <Backdrop 
+            open={showToast} 
+            onClick={() => setShowToast(false)}
+            sx={{ zIndex: 1300, backgroundColor: 'transparent' }}
+          />
+          <Fade in={showToast}>
+            <ToastModal
+              elevation={8}
+              sx={{
+                borderLeft: `4px solid ${toastContent.type === 'success' ? theme.palette.success.main : theme.palette.error.main}`
+              }}
             >
-              Freaking on the way
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              startIcon={<Cancel />}
-              onClick={() => handleOption('failure')}
-              sx={{ py: 1.5 }}
-            >
-              Will come back strong next time
-            </Button>
-          </Box>
-        </DialogContent>
-      </Dialog>
-
-      {/* Result Dialog */}
-      <Dialog 
-        open={openResultDialog} 
-        onClose={() => setOpenResultDialog(false)}
-        PaperProps={{
-          sx: {
-            borderRadius: theme.shape.borderRadius * 2
-          }
-        }}
-      >
-        <DialogTitle>{resultDialogTitle}</DialogTitle>
-        <DialogContent>
-          <Typography variant="h6" sx={{ textAlign: 'center', py: 2 }}>
-            {resultDialogContent}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenResultDialog(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </StyledPaper>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: toastContent.type === 'success' ? theme.palette.success.main : theme.palette.error.main }}>
+                  {toastContent.title}
+                </Typography>
+                <IconButton 
+                  size="small" 
+                  onClick={() => setShowToast(false)}
+                  sx={{ mt: -1, mr: -1 }}
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </Box>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                {toastContent.message}
+              </Typography>
+              <LinearProgress 
+                variant="determinate" 
+                value={progress_bar} 
+                sx={{ 
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: theme.palette.grey[200],
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: toastContent.type === 'success' ? theme.palette.success.main : theme.palette.error.main,
+                    borderRadius: 2
+                  }
+                }}
+              />
+            </ToastModal>
+          </Fade>
+        </>
+      )}
+    </>
   );
 };

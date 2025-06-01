@@ -168,7 +168,7 @@ export const JournalList: React.FC<JournalListProps> = ({
           </Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
-          <Button onClick={() => setDeleteDialog({ open: false })} variant="contained" color="secondary">
+          <Button onClick={() => setDeleteDialog({ open: false })} variant="contained">
             Cancel
           </Button>
           <Button onClick={handleDeleteConfirm} variant="contained" color="error">

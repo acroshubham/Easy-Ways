@@ -52,14 +52,19 @@ export const deleteJournalEntry = (id: string): JournalEntry[] => {
   localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(filteredEntries));
   return filteredEntries;
 };
-
 export const saveDailyProgress = (progress: DailyProgress) => {
   const progressList = getDailyProgress();
   const existingIndex = progressList.findIndex(p => p.date === progress.date);
   
   if (existingIndex >= 0) {
-    progressList[existingIndex] = progress;
-  } else {
+    // If status is empty string, remove the entry completely
+    if (!progress.status) {
+      progressList.splice(existingIndex, 1);
+    } else {
+      progressList[existingIndex] = progress;
+    }
+  } else if (progress.status) {
+    // Only add new entries if they have a valid status
     progressList.push(progress);
   }
   
@@ -74,31 +79,36 @@ export const getDailyProgress = (): DailyProgress[] => {
 export const calculateStreak = (): number => {
   const progress = getDailyProgress();
   const sortedProgress = progress
-    .filter(p => p.completed)
+    .filter(p => p.status === 'success')
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (sortedProgress.length === 0) return 0;
 
-  let streak = 1;
   const today = new Date();
-  let currentDate = new Date(sortedProgress[0].date);
-
-  // If the most recent date is not today or yesterday, streak is broken
-  if ((today.getTime() - currentDate.getTime()) > (2 * 24 * 60 * 60 * 1000)) {
-    return 0;
+  today.setHours(0, 0, 0, 0);
+  
+  const todayStr = today.toISOString().split('T')[0];
+  const hasTodayEntry = sortedProgress.find(p => p.date === todayStr);
+  
+  let streak = 0;
+  let currentDate = new Date(today);
+  
+  // If no entry for today, start from yesterday
+  if (!hasTodayEntry) {
+    currentDate.setDate(currentDate.getDate() - 1);
   }
-
-  for (let i = 1; i < sortedProgress.length; i++) {
-    const prevDate = new Date(sortedProgress[i].date);
-    const diffDays = Math.floor((currentDate.getTime() - prevDate.getTime()) / (24 * 60 * 60 * 1000));
+  
+  while (true) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const entry = sortedProgress.find(p => p.date === dateStr);
     
-    if (diffDays === 1) {
+    if (entry && entry.status === 'success') {
       streak++;
-      currentDate = prevDate;
+      currentDate.setDate(currentDate.getDate() - 1);
     } else {
       break;
     }
   }
-
+  
   return streak;
 };
