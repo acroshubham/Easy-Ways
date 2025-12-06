@@ -38,6 +38,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         mapUser(session.user);
+        // Industry Grade: Clean up the URL hash to remove access tokens
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
       } else {
         setLoading(false);
       }
@@ -81,6 +85,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
     if (error) throw error;
     setAuthState('login');
