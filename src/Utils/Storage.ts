@@ -76,8 +76,8 @@ export const getDailyProgress = (): DailyProgress[] => {
   return progress ? JSON.parse(progress) : [];
 };
 
-export const calculateStreak = (): number => {
-  const progress = getDailyProgress();
+export const calculateStreak = (data?: DailyProgress[]): number => {
+  const progress = data || getDailyProgress();
   const sortedProgress = progress
     .filter(p => p.status === 'success')
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

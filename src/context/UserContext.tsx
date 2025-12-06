@@ -1,83 +1,144 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase } from '../Utils/supabaseClient';
+import { UserProfile } from '../Types/user';
 
-interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  unlockedAt?: Date;
-}
+type AuthState = 'login' | 'logout';
 
-interface Level {
-  current: number;
-  experience: number;
-  nextLevelAt: number;
-}
-
-interface User {
-  id: string;
-  name: string;
+interface EmailCredentials {
   email: string;
-  avatar?: string;
-  role: 'user' | 'admin';
-  preferences: {
-    notifications: boolean;
-    emailUpdates: boolean;
-  };
-  level: Level;
-  achievements: Achievement[];
+  password: string;
+}
+
+interface SignUpPayload extends EmailCredentials {
+  name: string;
 }
 
 interface UserContextType {
-  user: User | null;
+  user: UserProfile | null;
   loading: boolean;
-  updateUser: (updates: Partial<User>) => void;
-  logout: () => void;
+  authState: AuthState;
+  loginWithGoogle: () => Promise<void>;
+  signInWithEmail: (credentials: EmailCredentials) => Promise<void>;
+  signUpWithEmail: (payload: SignUpPayload) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authState, setAuthState] = useState<AuthState>('login');
 
   useEffect(() => {
-    // Simulate fetching user data
-    const mockUser: User = {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'user',
-      preferences: {
-        notifications: true,
-        emailUpdates: false
-      },
-      level: {
-        current: 1,
-        experience: 20,
-        nextLevelAt: 100
-      },
-      achievements: [
-        { id: 'a1', name: 'First Login', description: 'Logged in for the first time', unlockedAt: new Date() },
-        { id: 'a2', name: 'Profile Updated', description: 'Updated profile' }
-      ]
+    // Check active session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        mapUser(session.user);
+      } else {
+        setLoading(false);
+      }
     };
 
-    setTimeout(() => {
-      setUser(mockUser);
-      setLoading(false);
-    }, 1000);
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        mapUser(session.user);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const updateUser = (updates: Partial<User>) => {
-    setUser(prev => prev ? { ...prev, ...updates } : null);
+  const mapUser = (supabaseUser: SupabaseUser) => {
+    const newUser: UserProfile = {
+      id: supabaseUser.id,
+      name: supabaseUser.user_metadata.full_name || supabaseUser.email?.split('@')[0] || 'User',
+      email: supabaseUser.email || '',
+      avatar_url: supabaseUser.user_metadata.avatar_url,
+      level: { current: 1, experience: 0, nextLevelAt: 100 }, // Placeholder
+      achievements: [], // Placeholder
+      preferences: {
+        notifications: true,
+        emailUpdates: false,
+        theme: 'light'
+      },
+      lastActive: new Date()
+    };
+    setUser(newUser);
+    setLoading(false);
+    setAuthState('login');
   };
 
-  const logout = () => {
+  const loginWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+    if (error) throw error;
+    setAuthState('login');
+  };
+
+  const signInWithEmail = async ({ email, password }: EmailCredentials) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    setAuthState('login');
+  };
+
+  const signUpWithEmail = async ({ email, password, name }: SignUpPayload) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        }
+      },
+    });
+    if (error) throw error;
+    setAuthState('login');
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     setUser(null);
+    setAuthState('logout');
+  };
+
+  const updateUser = async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: updates.name,
+          // Store preferences in metadata for now
+          preferences: updates.preferences
+        }
+      });
+
+      if (error) throw error;
+
+      // Optimistic update
+      setUser(prev => prev ? { ...prev, ...updates } : null);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, loading, updateUser, logout }}>
+    <UserContext.Provider value={{ user, loading, authState, loginWithGoogle, signInWithEmail, signUpWithEmail, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

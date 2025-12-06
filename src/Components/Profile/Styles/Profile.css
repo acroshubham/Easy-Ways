@@ -14,25 +14,6 @@
   transition: all 0.2s ease;
   border: 2px solid transparent;
 }
-.profile-section.disabled {
-  pointer-events: none; /* Disable all user interactions */
-  opacity: 0.5; /* Optional: visually indicate it's disabled */
-  position: relative;
-}
-
-.profile-section.disabled::after {
-  content: "Under Construction";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.8);
-  color: #666;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.55rem;
-}
-
 
 .profile-trigger:hover {
   background: var(--bg-hover);

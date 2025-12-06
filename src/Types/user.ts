@@ -15,6 +15,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  avatar_url?: string;
   level: UserLevel;
   achievements: UserAchievement[];
   preferences: {

@@ -20,7 +20,13 @@ import {
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { JournalEntry as JournalEntryType, Category } from '../../Types/types';
-import { saveJournalEntry, getJournalEntries, getCategories, saveCategory, deleteJournalEntry } from '../../Utils/Storage';
+import { 
+  saveSupabaseJournalEntry, 
+  fetchSupabaseJournalEntries, 
+  fetchSupabaseCategories, 
+  saveSupabaseCategory, 
+  deleteSupabaseJournalEntry 
+} from '../../Utils/SupabaseStorage';
 import { JournalList } from './JournalList';
 import { JournalDetail } from './JournalDetail';
 import { useTheme } from '@mui/material/styles';
@@ -41,13 +47,16 @@ export const JournalEntry: React.FC = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
-    const savedEntries = getJournalEntries();
-    const savedCategories = getCategories();
-    setEntries(savedEntries.sort((a: any, b: any) => b.createdAt - a.createdAt));
-    setCategories(savedCategories);
+    const fetchData = async () => {
+      const savedEntries = await fetchSupabaseJournalEntries();
+      const savedCategories = await fetchSupabaseCategories();
+      setEntries(savedEntries);
+      setCategories(savedCategories);
+    };
+    fetchData();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!category) {
       setSnackbar({
@@ -58,26 +67,38 @@ export const JournalEntry: React.FC = () => {
       return;
     }
 
-    const newEntry = saveJournalEntry({ date, header, body, category });
-    setEntries([newEntry, ...entries]);
-    setDate('');
-    setHeader('');
-    setBody('');
-    setCategory('');
-    
-    setSnackbar({
-      open: true,
-      message: 'Entry saved successfully!',
-      severity: 'success'
-    });
+    try {
+      const newEntry = await saveSupabaseJournalEntry({ date, header, body, category });
+      setEntries([newEntry, ...entries]);
+      setDate('');
+      setHeader('');
+      setBody('');
+      setCategory('');
+      
+      setSnackbar({
+        open: true,
+        message: 'Entry saved successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: 'Error saving entry',
+        severity: 'error'
+      });
+    }
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (newCategory.trim()) {
-      const updatedCategories = saveCategory(newCategory);
-      setCategories(updatedCategories);
-      setNewCategory('');
-      setOpenDialog(false);
+      try {
+        const newCat = await saveSupabaseCategory(newCategory);
+        setCategories([...categories, newCat]);
+        setNewCategory('');
+        setOpenDialog(false);
+      } catch (error) {
+        console.error('Error adding category:', error);
+      }
     }
   };
 
@@ -95,7 +116,7 @@ export const JournalEntry: React.FC = () => {
 
         <Paper 
           elevation={3} 
-          sx={{ 
+          sx={{    
             p: isMobile ? 2 : 3,
             background: theme.palette.background.paper,
             backdropFilter: 'blur(10px)',
@@ -195,17 +216,26 @@ export const JournalEntry: React.FC = () => {
         entries={entries}
         categories={categories}
         onEntryClick={setSelectedEntry}
-        onDeleteEntry={(id) => {
-          const updatedEntries = deleteJournalEntry(id);
-          setEntries(updatedEntries.sort((a, b) => b.createdAt - a.createdAt));
-          if (selectedEntry?.id === id) {
-            setSelectedEntry(null);
+        onDeleteEntry={async (id) => {
+          try {
+            await deleteSupabaseJournalEntry(id);
+            const updatedEntries = entries.filter(e => e.id !== id);
+            setEntries(updatedEntries);
+            if (selectedEntry?.id === id) {
+              setSelectedEntry(null);
+            }
+            setSnackbar({
+              open: true,
+              message: 'Entry deleted successfully!',
+              severity: 'success'
+            });
+          } catch (error) {
+            setSnackbar({
+              open: true,
+              message: 'Error deleting entry',
+              severity: 'error'
+            });
           }
-          setSnackbar({
-            open: true,
-            message: 'Entry deleted successfully!',
-            severity: 'success'
-          });
         }}
       />
 
@@ -213,6 +243,10 @@ export const JournalEntry: React.FC = () => {
         <JournalDetail
           entry={selectedEntry}
           onClose={() => setSelectedEntry(null)}
+          onEntryUpdated={(updatedEntry) => {
+            setEntries(entries.map(e => e.id === updatedEntry.id ? updatedEntry : e));
+            setSelectedEntry(updatedEntry);
+          }}
         />
       )}
 

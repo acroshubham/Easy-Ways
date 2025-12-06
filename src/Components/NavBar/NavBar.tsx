@@ -3,6 +3,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
 import './Styles/NavBar.css';
 import { Profile } from '../Profile/Profile';
+import { LoginModal } from '../Auth/LoginModal';
 
 export interface NavBarProps {
   currentView: 'calendar' | 'journal' | 'motivation' | 'emergency';
@@ -11,12 +12,12 @@ export interface NavBarProps {
 }
 
 export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView }) => {
-  const featureDisabled = true;
   const { toggleTheme, isDark } = useTheme();
   const { user, logout } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleProfileClick = () => {
     setIsProfileOpen(true);
@@ -87,33 +88,54 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView }) => {
                 </label>
               </div>
               {/* Profile Section */}
-              {user && (
-              <div className={`profile-section ${featureDisabled ? 'disabled' : ''}`}>
-                <div
-                  className="profile-trigger"
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+              {user ? (
+                <div className="profile-section">
+                  <div
+                    className="profile-trigger"
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  >
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt={user.name} className="avatar" />
+                    ) : (
+                      <div className="avatar">{user.name.charAt(0)}</div>
+                    )}
+                  </div>
+                  <div className={`profile-menu ${showProfileMenu ? 'active' : ''}`}>
+                    <div className="profile-menu-item" onClick={handleProfileClick}>
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      <span>Profile Settings</span>
+                    </div>
+                    <div className="profile-menu-item danger" onClick={logout}>
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      <span>Logout</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  className="login-button"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '20px',
+                    border: 'none',
+                    backgroundColor: 'var(--primary-color, #646cff)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
                 >
-                  <div className="avatar">{user.name.charAt(0)}</div>
-                </div>
-                <div className={`profile-menu ${showProfileMenu ? 'active' : ''}`}>
-                  <div className="profile-menu-item" onClick={handleProfileClick}>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <span>Profile Settings</span>
-                  </div>
-                  <div className="profile-menu-item danger" onClick={logout}>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    <span>Logout</span>
-                  </div>
-                </div>
-              </div>
-            )}
+                  Login
+                </button>
+              )}
             </div>
           </nav>
         </div>
@@ -124,6 +146,7 @@ export const NavBar: FC<NavBarProps> = ({ currentView, setCurrentView }) => {
           </div>
         )}
       </header>
+      <LoginModal open={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );
 };

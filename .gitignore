@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated documentation
+docs/WayToTailwind.md
+docs/TheBuddy'sMystry.md
+docs/modules/Buddy_Module.md
+docs/modules/Motivation_Module.md

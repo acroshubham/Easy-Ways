@@ -25,7 +25,8 @@ export const Profile: React.FC<ProfileProps> = ({ onClose }) => {
       email: formData.email,
       preferences: {
         notifications: formData.notifications,
-        emailUpdates: formData.emailUpdates
+        emailUpdates: formData.emailUpdates,
+        theme: user?.preferences.theme || 'light'
       }
     });
     setIsEditing(false);
@@ -46,11 +47,12 @@ export const Profile: React.FC<ProfileProps> = ({ onClose }) => {
   if (!user) return null;
 
   return (
+        <div className="profile-modal bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 min-h-screen flex items-center justify-center p-4 overflow-auto">
     <Profiler id="Profile" onRender={onRenderCallback}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="profile-container p-6 max-w-md mx-auto bg-white rounded-lg shadow-md"
+                className="bg-white/10 backdrop-blur-xl rounded-xl p-8 max-w-lg mx-auto text-white"
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Profile Settings</h2>
@@ -195,5 +197,6 @@ export const Profile: React.FC<ProfileProps> = ({ onClose }) => {
         )}
       </motion.div>
     </Profiler>
+    </div>
   );
 };

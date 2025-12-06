@@ -1,6 +1,7 @@
 import React from 'react';
 import { DailyProgress } from '../../Types/types';
-import { saveDailyProgress } from '../../Utils/Storage';
+
+import { upsertSupabaseProgress, deleteSupabaseProgress } from '../../Utils/SupabaseStorage';
 // MUI components & icons
 import { 
   Box,
@@ -221,10 +222,9 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
   const handleCalendarCellClick = (date: string) => {
     const existingProgress = progress.find(p => p.date === date);
     if (existingProgress && (existingProgress.status === 'success' || existingProgress.status === 'failure')) {
-      // Reset progress for existing entries
-      const resetProgress: DailyProgress = { date, completed: false, status: '' };
-      saveDailyProgress(resetProgress);
-      onProgressUpdate();
+      deleteSupabaseProgress(date).then(() => {
+        onProgressUpdate();
+      });
       return;
     }
     setSelectedDate(date);
@@ -240,7 +240,9 @@ export const Calendar: React.FC<CalendarProps> = ({ progress, onProgressUpdate }
       completed: status === 'success'
     };
     
-    saveDailyProgress(newProgress);
+    upsertSupabaseProgress(newProgress).then(() => {
+      onProgressUpdate();
+    });
     onProgressUpdate();
     setOpenOptionDialog(false);
 
